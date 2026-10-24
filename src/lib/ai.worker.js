@@ -13,12 +13,16 @@ const PST = {
 };
 const KING_END = [-50,-40,-30,-20,-20,-30,-40,-50, -30,-20,-10,0,0,-10,-20,-30, -30,-10,20,30,30,20,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,30,40,40,30,-10,-30, -30,-10,20,30,30,20,-10,-30, -30,-30,0,0,0,0,-30,-30, -50,-30,-30,-30,-30,-30,-30,-50];
 
-const LEVELS = [
-  { depth: 1, time: 600, noise: 90 },
-  { depth: 2, time: 800, noise: 25 },
-  { depth: 3, time: 1500, noise: 0 },
-  { depth: 6, time: 2500, noise: 0 }
-];
+// Maps an Elo setting (0 to 2400) to search depth, think time, evaluation noise and the chance of a random slip.
+function config(elo) {
+  const e = Math.min(2400, Math.max(0, elo));
+  return {
+    depth: e < 600 ? 1 : e < 1200 ? 2 : e < 1700 ? 3 : e < 2100 ? 4 : 5,
+    time: Math.round(500 + e * 0.9),
+    noise: Math.max(0, Math.round(400 * (1 - e / 1800))),
+    slip: e < 600 ? 0.5 * (1 - e / 600) : 0
+  };
+}
 
 let deadline = 0;
 let aborted = false;
@@ -85,6 +89,11 @@ function negamax(chess, depth, alpha, beta, ply) {
 
 function pick(chess, cfg) {
   deadline = Date.now() + cfg.time;
+  if (Math.random() < cfg.slip) {
+    const all = chess.moves({ verbose: true });
+    const m = all[Math.floor(Math.random() * all.length)];
+    return { from: m.from, to: m.to, promotion: m.promotion };
+  }
   let root = ordered(chess.moves({ verbose: true }));
   let best = root[0];
   for (let depth = 1; depth <= cfg.depth; depth++) {
@@ -112,8 +121,8 @@ function pick(chess, cfg) {
   return { from: best.from, to: best.to, promotion: best.promotion };
 }
 
-self.onmessage = ({ data: { job, moves, level } }) => {
+self.onmessage = ({ data: { job, moves, elo } }) => {
   const chess = new Chess();
   for (const san of moves) chess.move(san);
-  self.postMessage({ job, move: pick(chess, LEVELS[level]) });
+  self.postMessage({ job, move: pick(chess, config(elo)) });
 };

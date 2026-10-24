@@ -1,5 +1,5 @@
 <script>
-  import { game, LEVELS } from '../lib/game.svelte.js';
+  import { game } from '../lib/game.svelte.js';
   import Piece from './Piece.svelte';
 
   let { color } = $props();
@@ -9,7 +9,7 @@
     game.mode === 'ai'
       ? color === game.human
         ? 'You'
-        : `Engine, ${LEVELS[game.level].name}`
+        : `Engine ${game.elo}`
       : color === 'w'
         ? 'White'
         : 'Black'

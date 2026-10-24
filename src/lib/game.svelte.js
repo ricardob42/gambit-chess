@@ -10,12 +10,16 @@ const TITLES = { checkmate: 'Checkmate', time: 'Out of time', resignation: 'Resi
 
 export const THEMES = ['lacquer', 'verdigris', 'parchment'];
 
-export const LEVELS = [
-  { name: 'Novice', blurb: 'Plays fast and makes mistakes' },
-  { name: 'Casual', blurb: 'Looks a couple of moves ahead' },
-  { name: 'Club', blurb: 'Solid tactics' },
-  { name: 'Master', blurb: 'Thinks deep, rarely slips' }
-];
+export const BANDS = [
+  'Easy',
+  'Medium',
+  'Intermediate',
+  'Club',
+  'Advanced',
+  'Expert'
+].map((name, i) => ({ name, from: i * 400, to: (i + 1) * 400 }));
+
+export const bandIndex = (elo) => Math.min(BANDS.length - 1, Math.floor(elo / 400));
 
 export const CLOCKS = [
   { id: 'none', label: 'Untimed', base: 0, inc: 0 },
@@ -86,7 +90,7 @@ class Game {
 
   mode = $state('ai');
   human = $state('w');
-  level = $state(2);
+  elo = $state(1200);
   clock = $state('none');
   orientation = $state('w');
   moves = $state([]);
@@ -148,7 +152,7 @@ class Game {
       const save = JSON.parse(raw);
       this.mode = save.mode;
       this.human = save.human;
-      this.level = save.level;
+      this.elo = save.elo;
       this.clock = save.clock;
       this.orientation = save.orientation;
       for (const san of save.moves) this.moves.push({ ...this.chess.move(san) });
@@ -166,13 +170,13 @@ class Game {
     this.#maybeAI();
   }
 
-  newGame({ mode, human, level, clock }) {
+  newGame({ mode, human, elo, clock }) {
     this.#job++;
     this.thinking = false;
     this.chess = new Chess();
     this.mode = mode;
     this.human = human;
-    this.level = level;
+    this.elo = elo;
     this.clock = clock;
     this.orientation = mode === 'ai' ? human : 'w';
     this.moves = [];
@@ -288,9 +292,10 @@ class Game {
     const c = new Chess();
     for (const m of this.moves) c.move(m.san);
     const name = (color) =>
-      this.mode === 'ai' ? (color === this.human ? 'You' : `Engine (${LEVELS[this.level].name})`) : color === 'w' ? 'White' : 'Black';
+      this.mode === 'ai' ? (color === this.human ? 'You' : `Engine ${this.elo}`) : color === 'w' ? 'White' : 'Black';
     c.setHeader('White', name('w'));
     c.setHeader('Black', name('b'));
+    if (this.mode === 'ai') c.setHeader(this.human === 'w' ? 'BlackElo' : 'WhiteElo', String(this.elo));
     c.setHeader('Result', !this.result ? '*' : this.result.winner === 'w' ? '1-0' : this.result.winner === 'b' ? '0-1' : '1/2-1/2');
     return c.pgn();
   }
@@ -321,7 +326,7 @@ class Game {
       JSON.stringify({
         mode: this.mode,
         human: this.human,
-        level: this.level,
+        elo: this.elo,
         clock: this.clock,
         orientation: this.orientation,
         moves: this.moves.map((m) => m.san),
@@ -351,7 +356,7 @@ class Game {
         }, wait);
       };
     }
-    this.#worker.postMessage({ job: ++this.#job, moves: this.moves.map((m) => m.san), level: this.level });
+    this.#worker.postMessage({ job: ++this.#job, moves: this.moves.map((m) => m.san), elo: this.elo });
   }
 }
 
