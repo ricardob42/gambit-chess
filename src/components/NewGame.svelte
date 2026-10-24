@@ -1,19 +1,21 @@
 <script>
   import { fade, fly } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { game, LEVELS, CLOCKS } from '../lib/game.svelte.js';
+  import { game, BANDS, CLOCKS, bandIndex } from '../lib/game.svelte.js';
   import Piece from './Piece.svelte';
 
   let { onclose } = $props();
 
   let mode = $state(game.mode);
   let side = $state(game.mode === 'ai' ? game.human : 'w');
-  let level = $state(game.level);
+  let elo = $state(game.elo);
   let clock = $state(game.clock);
+
+  const band = $derived(BANDS[bandIndex(elo)]);
 
   function start() {
     const human = side === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : side;
-    game.newGame({ mode, human, level, clock });
+    game.newGame({ mode, human, elo, clock });
     onclose();
   }
 </script>
@@ -55,14 +57,20 @@
 
       <div class="group" transition:fade={{ duration: 150 }}>
         <h3>Strength</h3>
-        <div class="levels">
-          {#each LEVELS as l, i}
-            <button class="level" aria-pressed={level === i} onclick={() => (level = i)}>
-              <strong>{l.name}</strong>
-              <small>{l.blurb}</small>
+        <div class="readout">
+          <strong>{elo}</strong>
+          <span>{band.name}</span>
+        </div>
+        <input type="range" min="0" max="2400" step="50" bind:value={elo} style="--p:{elo / 24}%" aria-label="Engine Elo rating" />
+        <div class="legend">
+          {#each BANDS as b, i}
+            <button class="chip band" aria-pressed={i === bandIndex(elo)} onclick={() => (elo = b.from + 200)}>
+              <span>{b.name}</span>
+              <small>{b.from}–{b.to}</small>
             </button>
           {/each}
         </div>
+        <p class="note">Ratings are approximate. The engine runs in your browser, so the top rating means its maximum search depth and thinking time, not true engine-level play.</p>
       </div>
     {/if}
 
@@ -107,7 +115,6 @@
     border-radius: 14px;
   }
   .seg button,
-  .level,
   .chip {
     font: 600 0.95rem var(--font-display);
     color: var(--ink);
@@ -122,7 +129,6 @@
       transform 0.25s var(--ease-spring);
   }
   .seg button:hover,
-  .level:hover,
   .chip:hover {
     transform: translateY(-2px);
   }
@@ -149,22 +155,76 @@
     font: 700 1rem var(--font-display);
     color: var(--ink);
   }
-  .levels {
+  .readout {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+  }
+  .readout strong {
+    font: 800 3rem/1 var(--font-display);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .readout span {
+    font: italic 400 1.4rem var(--font-display);
+    color: var(--accent);
+  }
+  input[type='range'] {
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    margin: 0.8rem 0 1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent) var(--p), var(--bg) var(--p));
+    cursor: pointer;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 4px solid var(--accent);
+    transition: transform 0.2s var(--ease-spring);
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 4px solid var(--accent);
+    transition: transform 0.2s var(--ease-spring);
+  }
+  input[type='range']:active::-webkit-slider-thumb {
+    transform: scale(1.25);
+  }
+  input[type='range']:active::-moz-range-thumb {
+    transform: scale(1.25);
+  }
+  .legend {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+  .band {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     gap: 0.5rem;
-  }
-  .level {
-    display: grid;
-    gap: 0.15rem;
+    padding: 0.5rem 0.8rem;
+    font-family: var(--font-display);
+    border-radius: 12px;
     text-align: left;
-    background: var(--panel-2);
-    border-color: var(--line);
-    padding: 0.7rem 0.8rem;
   }
-  .level small {
-    font: 400 0.78rem var(--font-mono);
+  .band small {
+    font: 500 0.75rem var(--font-mono);
     opacity: 0.8;
+  }
+  .note {
+    margin: 0.7rem 0 0;
+    font: 400 0.8rem/1.4 var(--font-mono);
+    color: var(--ink-dim);
   }
   .chips {
     display: flex;
