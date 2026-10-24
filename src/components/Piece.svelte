@@ -1,10 +1,11 @@
 <script>
-  import { SHAPES, NAMES } from '../lib/pieces.js';
+  import { SHAPES } from '../lib/pieces.js';
+  import { t } from '../lib/i18n.svelte.js';
 
   let { type, color } = $props();
 </script>
 
-<svg viewBox="0 0 100 100" class={color} role="img" aria-label="{color === 'w' ? 'white' : 'black'} {NAMES[type]}">
+<svg viewBox="0 0 100 100" class={color} role="img" aria-label={t(`piece.${color}${type}`)}>
   <g class="shape" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
     {@html SHAPES[type]}
   </g>

@@ -10,6 +10,7 @@ A chess game built with Svelte 5, Vite and chess.js, installable as a PWA and re
 - Clocks with increments, resign, undo, board flip
 - Move list with history review (arrow keys, Home, End)
 - Copy PGN or FEN
+- Spanish (default) and English interface, switchable in the app
 - Sound effects, three themes, installable and playable offline
 - The current game is saved and resumes after a reload
 

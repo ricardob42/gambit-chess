@@ -3,6 +3,7 @@
   import { cubicOut } from 'svelte/easing';
   import { game, BANDS, CLOCKS, bandIndex } from '../lib/game.svelte.js';
   import Piece from './Piece.svelte';
+  import { t } from '../lib/i18n.svelte.js';
 
   let { onclose } = $props();
 
@@ -10,8 +11,6 @@
   let side = $state(game.mode === 'ai' ? game.human : 'w');
   let elo = $state(game.elo);
   let clock = $state(game.clock);
-
-  const band = $derived(BANDS[bandIndex(elo)]);
 
   function start() {
     const human = side === 'r' ? (Math.random() < 0.5 ? 'w' : 'b') : side;
@@ -28,64 +27,64 @@
     if (e.target === e.currentTarget) onclose();
   }}
 >
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="New game" in:fly={{ y: 50, duration: 450, easing: cubicOut }} out:fly={{ y: 30, duration: 200 }}>
-    <h2>New game</h2>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label={t('newGame')} in:fly={{ y: 50, duration: 450, easing: cubicOut }} out:fly={{ y: 30, duration: 200 }}>
+    <h2>{t('newGame')}</h2>
 
     <div class="group">
-      <h3>Opponent</h3>
+      <h3>{t('opponent')}</h3>
       <div class="seg">
-        <button aria-pressed={mode === 'ai'} onclick={() => (mode = 'ai')}>The engine</button>
-        <button aria-pressed={mode === 'local'} onclick={() => (mode = 'local')}>A friend</button>
+        <button aria-pressed={mode === 'ai'} onclick={() => (mode = 'ai')}>{t('theEngine')}</button>
+        <button aria-pressed={mode === 'local'} onclick={() => (mode = 'local')}>{t('aFriend')}</button>
       </div>
     </div>
 
     {#if mode === 'ai'}
       <div class="group" transition:fade={{ duration: 150 }}>
-        <h3>You play</h3>
+        <h3>{t('youPlay')}</h3>
         <div class="seg sides">
           <button aria-pressed={side === 'w'} onclick={() => (side = 'w')}>
-            <span class="glyph"><Piece type="k" color="w" /></span>White
+            <span class="glyph"><Piece type="k" color="w" /></span>{t('white')}
           </button>
           <button aria-pressed={side === 'r'} onclick={() => (side = 'r')}>
-            <span class="glyph q">?</span>Random
+            <span class="glyph q">?</span>{t('random')}
           </button>
           <button aria-pressed={side === 'b'} onclick={() => (side = 'b')}>
-            <span class="glyph"><Piece type="k" color="b" /></span>Black
+            <span class="glyph"><Piece type="k" color="b" /></span>{t('black')}
           </button>
         </div>
       </div>
 
       <div class="group" transition:fade={{ duration: 150 }}>
-        <h3>Strength</h3>
+        <h3>{t('strength')}</h3>
         <div class="readout">
           <strong>{elo}</strong>
-          <span>{band.name}</span>
+          <span>{t(`band.${bandIndex(elo)}`)}</span>
         </div>
-        <input type="range" min="0" max="2400" step="50" bind:value={elo} style="--p:{elo / 24}%" aria-label="Engine Elo rating" />
+        <input type="range" min="0" max="2400" step="50" bind:value={elo} style="--p:{elo / 24}%" aria-label={t('eloAria')} />
         <div class="legend">
           {#each BANDS as b, i}
             <button class="chip band" aria-pressed={i === bandIndex(elo)} onclick={() => (elo = b.from + 200)}>
-              <span>{b.name}</span>
+              <span>{t(`band.${i}`)}</span>
               <small>{b.from}–{b.to}</small>
             </button>
           {/each}
         </div>
-        <p class="note">Ratings are approximate. The engine runs in your browser, so the top rating means its maximum search depth and thinking time, not true engine-level play.</p>
+        <p class="note">{t('note')}</p>
       </div>
     {/if}
 
     <div class="group">
-      <h3>Clock</h3>
+      <h3>{t('clock')}</h3>
       <div class="chips">
         {#each CLOCKS as c}
-          <button class="chip" aria-pressed={clock === c.id} onclick={() => (clock = c.id)}>{c.label}</button>
+          <button class="chip" aria-pressed={clock === c.id} onclick={() => (clock = c.id)}>{c.id === 'none' ? t('untimed') : c.label}</button>
         {/each}
       </div>
     </div>
 
     <div class="actions">
-      <button class="btn" onclick={onclose}>Cancel</button>
-      <button class="btn primary" onclick={start}>Start game</button>
+      <button class="btn" onclick={onclose}>{t('cancel')}</button>
+      <button class="btn primary" onclick={start}>{t('startGame')}</button>
     </div>
   </div>
 </div>

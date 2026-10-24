@@ -3,6 +3,7 @@
   import { fly } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
   import { game, THEMES } from './lib/game.svelte.js';
+  import { t, i18n, setLang } from './lib/i18n.svelte.js';
   import Board from './components/Board.svelte';
   import PlayerBar from './components/PlayerBar.svelte';
   import MoveList from './components/MoveList.svelte';
@@ -17,12 +18,14 @@
   let toastTimer;
   let seen = game.result;
 
+  const side = (color) => t(color === 'w' ? 'lw' : 'lb');
+
   const status = $derived.by(() => {
     if (game.result) return `${game.outcome.title}. ${game.outcome.sub}.`;
-    if (!game.live) return `Reviewing move ${Math.ceil(game.viewIndex / 2)}. Press End to return.`;
-    if (game.thinking) return 'The engine is thinking';
-    if (game.checkSquare) return `${game.turn === 'w' ? 'White' : 'Black'} is in check`;
-    return `${game.turn === 'w' ? 'White' : 'Black'} to move`;
+    if (!game.live) return t('reviewing', { n: Math.ceil(game.viewIndex / 2) });
+    if (game.thinking) return t('thinking');
+    if (game.checkSquare) return t('inCheck', { side: side(game.turn) });
+    return t('toMove', { side: side(game.turn) });
   });
 
   $effect(() => {
@@ -32,6 +35,10 @@
 
   $effect(() => {
     document.documentElement.dataset.theme = game.theme;
+  });
+
+  $effect(() => {
+    document.documentElement.lang = i18n.lang;
   });
 
   $effect(() => {
@@ -102,16 +109,17 @@
     <MoveList />
 
     <div class="tools">
-      <button class="btn primary" onclick={() => (menu = true)}>New game</button>
-      <button class="btn" onclick={() => game.undo()} disabled={game.thinking || !game.moves.length}>Undo</button>
-      <button class="btn" onclick={() => game.flip()}>Flip</button>
-      <button class="btn danger" onclick={() => game.resign()} disabled={!!game.result || !game.moves.length}>Resign</button>
-      <button class="btn" onclick={() => copy(game.pgn(), 'PGN copied')} disabled={!game.moves.length}>PGN</button>
-      <button class="btn" onclick={() => copy(game.fen(), 'FEN copied')}>FEN</button>
-      <button class="btn" onclick={() => game.toggleMute()} aria-pressed={!game.muted}>Sound {game.muted ? 'off' : 'on'}</button>
-      <button class="btn" onclick={cycleTheme}>Theme: {game.theme}</button>
+      <button class="btn primary" onclick={() => (menu = true)}>{t('newGame')}</button>
+      <button class="btn" onclick={() => game.undo()} disabled={game.thinking || !game.moves.length}>{t('undo')}</button>
+      <button class="btn" onclick={() => game.flip()}>{t('flip')}</button>
+      <button class="btn danger" onclick={() => game.resign()} disabled={!!game.result || !game.moves.length}>{t('resign')}</button>
+      <button class="btn" onclick={() => copy(game.pgn(), t('pgnCopied'))} disabled={!game.moves.length}>{t('pgn')}</button>
+      <button class="btn" onclick={() => copy(game.fen(), t('fenCopied'))}>{t('fen')}</button>
+      <button class="btn" onclick={() => game.toggleMute()} aria-pressed={!game.muted}>{game.muted ? t('soundOff') : t('soundOn')}</button>
+      <button class="btn" onclick={() => setLang(i18n.lang === 'es' ? 'en' : 'es')} lang={i18n.lang === 'es' ? 'en' : 'es'}>{t('switchLang')}</button>
+      <button class="btn" onclick={cycleTheme}>{t('theme')}: {t(`theme.${game.theme}`)}</button>
       {#if installEvent}
-        <button class="btn primary" onclick={install}>Install app</button>
+        <button class="btn primary" onclick={install}>{t('installApp')}</button>
       {/if}
     </div>
   </aside>
@@ -128,7 +136,7 @@
       menu = true;
     }}
     onreview={() => (resultOpen = false)}
-    oncopy={() => copy(game.pgn(), 'PGN copied')}
+    oncopy={() => copy(game.pgn(), t('pgnCopied'))}
   />
 {/if}
 

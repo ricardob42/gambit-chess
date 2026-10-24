@@ -4,6 +4,7 @@
   import { game } from '../lib/game.svelte.js';
   import Piece from './Piece.svelte';
   import Promotion from './Promotion.svelte';
+  import { t } from '../lib/i18n.svelte.js';
 
   const FILES = 'abcdefgh';
 
@@ -138,7 +139,7 @@
     class:shake={game.live && game.burst?.kind === 'mate'}
     bind:this={boardEl}
     role="application"
-    aria-label="Chess board"
+    aria-label={t('board')}
     onpointerdown={down}
     onpointermove={move}
     onpointerup={up}

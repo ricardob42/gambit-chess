@@ -2,6 +2,7 @@
   import { fade, fly } from 'svelte/transition';
   import { backOut } from 'svelte/easing';
   import Piece from './Piece.svelte';
+  import { t } from '../lib/i18n.svelte.js';
 
   let { color, onpick, oncancel } = $props();
 </script>
@@ -14,11 +15,11 @@
     if (e.target === e.currentTarget) oncancel();
   }}
 >
-  <div class="tray" role="dialog" aria-label="Choose a promotion piece">
+  <div class="tray" role="dialog" aria-label={t('promoteTitle')}>
     {#each ['q', 'n', 'r', 'b'] as type, i}
       <button
         class="choice"
-        aria-label="Promote to {type}"
+        aria-label={t('promoteTo', { piece: t(`pn.${type}`) })}
         onclick={() => onpick(type)}
         in:fly={{ y: 30, duration: 420, delay: i * 70, easing: backOut }}
       >

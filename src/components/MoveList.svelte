@@ -1,5 +1,6 @@
 <script>
   import { game } from '../lib/game.svelte.js';
+  import { t, san } from '../lib/i18n.svelte.js';
 
   let box;
 
@@ -20,10 +21,10 @@
 </script>
 
 <div class="nav">
-  <button onclick={() => game.jump(0)} aria-label="First move" disabled={game.viewIndex === 0}>«</button>
-  <button onclick={() => game.step(-1)} aria-label="Previous move" disabled={game.viewIndex === 0}>‹</button>
-  <button onclick={() => game.step(1)} aria-label="Next move" disabled={game.live}>›</button>
-  <button onclick={() => game.jump(Infinity)} aria-label="Latest move" disabled={game.live}>»</button>
+  <button onclick={() => game.jump(0)} aria-label={t('navFirst')} disabled={game.viewIndex === 0}>«</button>
+  <button onclick={() => game.step(-1)} aria-label={t('navPrev')} disabled={game.viewIndex === 0}>‹</button>
+  <button onclick={() => game.step(1)} aria-label={t('navNext')} disabled={game.live}>›</button>
+  <button onclick={() => game.jump(Infinity)} aria-label={t('navLast')} disabled={game.live}>»</button>
 </div>
 
 <div class="list" bind:this={box}>
@@ -31,16 +32,16 @@
     <div class="row">
       <span class="num">{row.n}</span>
       <button class="mv" class:cur={game.viewIndex === 2 * row.n - 1} onclick={() => game.jump(2 * row.n - 1)}>
-        {row.w.san}
+        {san(row.w.san)}
       </button>
       {#if row.b}
         <button class="mv" class:cur={game.viewIndex === 2 * row.n} onclick={() => game.jump(2 * row.n)}>
-          {row.b.san}
+          {san(row.b.san)}
         </button>
       {/if}
     </div>
   {:else}
-    <p class="empty">No moves yet. White opens the game.</p>
+    <p class="empty">{t('noMoves')}</p>
   {/each}
 </div>
 

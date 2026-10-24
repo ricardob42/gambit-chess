@@ -3,6 +3,7 @@
   import { backOut } from 'svelte/easing';
   import { game } from '../lib/game.svelte.js';
   import Piece from './Piece.svelte';
+  import { t } from '../lib/i18n.svelte.js';
 
   let { onnew, onreview, oncopy } = $props();
 </script>
@@ -15,7 +16,7 @@
     if (e.target === e.currentTarget) onreview();
   }}
 >
-  <div class="sheet result" role="dialog" aria-modal="true" aria-label="Game over" in:scale={{ start: 0.7, duration: 650, easing: backOut }}>
+  <div class="sheet result" role="dialog" aria-modal="true" aria-label={t('gameOver')} in:scale={{ start: 0.7, duration: 650, easing: backOut }}>
     <div class="flare"></div>
     {#if game.result.winner}
       <div class="crown"><Piece type="k" color={game.result.winner} /></div>
@@ -28,9 +29,9 @@
     <h2>{game.outcome.title}</h2>
     <p>{game.outcome.sub}</p>
     <div class="actions">
-      <button class="btn primary" onclick={onnew}>New game</button>
-      <button class="btn" onclick={onreview}>Review board</button>
-      <button class="btn" onclick={oncopy}>Copy PGN</button>
+      <button class="btn primary" onclick={onnew}>{t('newGame')}</button>
+      <button class="btn" onclick={onreview}>{t('reviewBoard')}</button>
+      <button class="btn" onclick={oncopy}>{t('copyPgn')}</button>
     </div>
   </div>
 </div>

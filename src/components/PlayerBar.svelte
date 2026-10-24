@@ -1,6 +1,7 @@
 <script>
   import { game } from '../lib/game.svelte.js';
   import Piece from './Piece.svelte';
+  import { t } from '../lib/i18n.svelte.js';
 
   let { color } = $props();
 
@@ -8,11 +9,9 @@
   const name = $derived(
     game.mode === 'ai'
       ? color === game.human
-        ? 'You'
-        : `Engine ${game.elo}`
-      : color === 'w'
-        ? 'White'
-        : 'Black'
+        ? t('you')
+        : `${t('engine')} ${game.elo}`
+      : t(color === 'w' ? 'nameW' : 'nameB')
   );
   const lead = $derived(color === 'w' ? game.balance : -game.balance);
   const timed = $derived(game.clockCfg.base > 0);
@@ -32,10 +31,10 @@
   <div class="who">
     <span class="avatar"><Piece type="k" {color} /></span>
     <span class="name">{name}</span>
-    {#if engineThinking}<span class="dots" aria-label="thinking"><i></i><i></i><i></i></span>{/if}
+    {#if engineThinking}<span class="dots" aria-label={t('thinkingAria')}><i></i><i></i><i></i></span>{/if}
   </div>
 
-  <div class="grabbed" aria-label="captured pieces">
+  <div class="grabbed" aria-label={t('capturedAria')}>
     {#each game.captured[color] as type}
       <span class="mini"><Piece {type} color={opponent} /></span>
     {/each}

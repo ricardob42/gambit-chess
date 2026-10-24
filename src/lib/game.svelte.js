@@ -1,23 +1,16 @@
 import { Chess } from 'chess.js';
 import { sfx } from './sound.js';
+import { t } from './i18n.svelte.js';
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const FILES = 'abcdefgh';
 const SAVE_KEY = 'gambit.game';
 const PREFS_KEY = 'gambit.prefs';
 const WORTH = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-const TITLES = { checkmate: 'Checkmate', time: 'Out of time', resignation: 'Resigned' };
 
 export const THEMES = ['lacquer', 'verdigris', 'parchment'];
 
-export const BANDS = [
-  'Easy',
-  'Medium',
-  'Intermediate',
-  'Club',
-  'Advanced',
-  'Expert'
-].map((name, i) => ({ name, from: i * 400, to: (i + 1) * 400 }));
+export const BANDS = Array.from({ length: 6 }, (_, i) => ({ from: i * 400, to: (i + 1) * 400 }));
 
 export const bandIndex = (elo) => Math.min(BANDS.length - 1, Math.floor(elo / 400));
 
@@ -132,14 +125,14 @@ class Game {
   outcome = $derived.by(() => {
     const r = this.result;
     if (!r) return null;
-    if (!r.winner) return { title: 'Draw', sub: r.reason[0].toUpperCase() + r.reason.slice(1) };
+    if (!r.winner) return { title: t('draw'), sub: t(`reason.${r.reason}`) };
     const who =
       this.mode === 'ai'
         ? r.winner === this.human
-          ? 'You win'
-          : 'The engine wins'
-        : `${r.winner === 'w' ? 'White' : 'Black'} wins`;
-    return { title: TITLES[r.reason], sub: who };
+          ? t('youWin')
+          : t('engineWins')
+        : t(r.winner === 'w' ? 'whiteWins' : 'blackWins');
+    return { title: t(`result.${r.reason}`), sub: who };
   });
 
   constructor() {
