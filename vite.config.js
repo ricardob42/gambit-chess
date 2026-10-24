@@ -9,9 +9,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: 'Gambit Chess',
+        name: 'Gambit Ajedrez',
+        lang: 'es',
         short_name: 'Gambit',
-        description: 'Play chess against the engine or a friend, online or offline.',
+        description: 'Juega al ajedrez contra el motor o contra un amigo, con o sin conexión.',
         theme_color: '#15111c',
         background_color: '#15111c',
         display: 'standalone',

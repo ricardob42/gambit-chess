@@ -8,5 +8,3 @@ export const SHAPES = {
   q: `<path d="M28 78L20 34L35 52L37 26L44 50L50 18L56 50L63 26L65 52L80 34L72 78Z"/><circle cx="20" cy="30" r="4"/><circle cx="37" cy="22" r="4"/><circle cx="50" cy="14" r="4"/><circle cx="63" cy="22" r="4"/><circle cx="80" cy="30" r="4"/>${BASE}`,
   k: `<path d="M46 6h8v7h7v8h-7v7h-8v-7h-7v-8h7z"/><path d="M50 30c16 0 28 10 24 26-2 8-8 10-10 16l2 6H34l2-6c-2-6-8-8-10-16-4-16 8-26 24-26z"/>${BASE}`
 };
-
-export const NAMES = { p: 'pawn', r: 'rook', n: 'knight', b: 'bishop', q: 'queen', k: 'king' };
